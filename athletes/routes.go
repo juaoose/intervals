@@ -1,6 +1,8 @@
 package athlete
 
 import (
+	"encoding/json"
+	"log"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -17,9 +19,27 @@ func (c *AthleteController) retrieveAthletes(w http.ResponseWriter, r *http.Requ
 }
 
 func (c *AthleteController) createAthlete(w http.ResponseWriter, r *http.Request) {
+	var athlete Athlete
 	w.Header().Set("Content-Type", "application/json")
+
+	err := json.NewDecoder(r.Body).Decode(&athlete)
+
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte(`{"message": "the provided athlete is incorrect"}`))
+	}
+
+	createdAthlete, err := c.athleteService.createAthlete(athlete)
+
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(`{"message": "error creating the athlete"}`))
+		log.Println(err)
+		return
+	}
+
 	w.WriteHeader(http.StatusCreated)
-	w.Write([]byte(`{"message": "Created"}`))
+	json.NewEncoder(w).Encode(createdAthlete)
 
 }
 
