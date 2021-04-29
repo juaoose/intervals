@@ -43,7 +43,7 @@ func createAthletesService() (*athlete.AthleteService, error) {
 func getPort() (string, error) {
 	appPort := os.Getenv("PORT")
 	if appPort != "" {
-		return appPort, nil
+		return ":" + appPort, nil
 	}
-	return ":" + appPort, errors.New("port was not configured")
+	return "", errors.New("port was not configured")
 }
